@@ -1,0 +1,24 @@
+[
+  {
+    "id": "nextcloud",
+    "name": "Nextcloud",
+    "url": "https://nextcloud.example.com",
+    "healthPath": "/status.php",
+    "link": "https://nextcloud.example.com"
+  },
+  {
+    "id": "plex",
+    "name": "Plex",
+    "url": "https://plex.example.com:32400/web",
+    "group": "Media"
+  },
+  {
+    "id": "internal-api",
+    "name": "Internal API",
+    "url": "http://192.168.1.50:3000",
+    "healthPath": "/health",
+    "expectedStatus": 200,
+    "description": "Backend for the family dashboard",
+    "group": "Infrastructure"
+  }
+]

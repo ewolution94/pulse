@@ -1,0 +1,64 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0a0e1a"/>
+      <stop offset="0.55" stop-color="#05070c"/>
+      <stop offset="1" stop-color="#050609"/>
+    </linearGradient>
+    <radialGradient id="markGlow" cx="196" cy="288" r="10" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5ad1ff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#5ad1ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ambientGlow" cx="1010" cy="520" r="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5ad1ff" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#5ad1ff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1.4" cy="1.4" r="1.4" fill="#1b2333"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#05070c" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05070c" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+  <rect width="1200" height="630" fill="url(#ambientGlow)"/>
+
+  <!-- large ambient EKG line across the bottom -->
+  <path d="M 0 520 L 260 520 L 300 480 L 340 560 L 380 400 L 420 600 L 460 520 L 1200 520"
+        fill="none" stroke="#5ad1ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.18"/>
+
+  <!-- logo lockup -->
+  <g transform="translate(120,150) scale(2.1)">
+    <rect width="64" height="64" rx="16" fill="#0a0e1a" stroke="#1b2333" stroke-width="1"/>
+    <circle cx="30" cy="12" r="14" fill="url(#markGlow)"/>
+    <path d="M 6 32 L 18 32 L 22 26 L 26 38 L 30 12 L 34 50 L 38 32 L 58 32"
+          fill="none" stroke="#5ad1ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="30" cy="12" r="2.6" fill="#5ad1ff"/>
+  </g>
+
+  <text x="266" y="222" font-family="'Space Grotesk','Segoe UI',Helvetica,Arial,sans-serif" font-size="58" font-weight="700" letter-spacing="2" fill="#eef1f8">PULSE</text>
+
+  <text x="122" y="330" font-family="'Space Grotesk','Segoe UI',Helvetica,Arial,sans-serif" font-size="30" font-weight="500" fill="#eef1f8">Status, at a glance.</text>
+  <text x="122" y="368" font-family="'JetBrains Mono','SFMono-Regular',Consolas,monospace" font-size="16" letter-spacing="0.5" fill="#8993a8">Every self-hosted app, one calm dark-mode overview.</text>
+
+  <!-- ghost status rows -->
+  <g font-family="'JetBrains Mono','SFMono-Regular',Consolas,monospace">
+    <g transform="translate(122,430)">
+      <rect width="460" height="52" rx="10" fill="#0d1220" stroke="#1b2333"/>
+      <circle cx="24" cy="26" r="5" fill="#35d488"/>
+      <text x="42" y="31" font-size="15" fill="#eef1f8">Nextcloud</text>
+      <text x="418" y="31" font-size="12" fill="#35d488" text-anchor="end">Operational</text>
+    </g>
+    <g transform="translate(122,494)">
+      <rect width="460" height="52" rx="10" fill="#0d1220" stroke="#1b2333"/>
+      <circle cx="24" cy="26" r="5" fill="#ffb545"/>
+      <text x="42" y="31" font-size="15" fill="#eef1f8">Plex</text>
+      <text x="418" y="31" font-size="12" fill="#ffb545" text-anchor="end">Degraded</text>
+    </g>
+  </g>
+
+  <rect width="1200" height="630" fill="url(#fade)"/>
+</svg>

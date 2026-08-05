@@ -1,0 +1,10 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+*.log
+
+# your real service list and check history — keep the example, not the data
+data/services.json
+data/history.json

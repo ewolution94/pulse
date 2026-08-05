@@ -1,0 +1,14 @@
+services:
+  pulse:
+    build: .
+    container_name: pulse
+    restart: unless-stopped
+    ports:
+      - "4400:4400"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PULSE_POLL_INTERVAL_MS=60000
+      # - PULSE_CHECK_TIMEOUT_MS=10000
+      # - PULSE_RETENTION_DAYS=90
+      # - PULSE_DEGRADED_LATENCY_MS=3000
