@@ -1,0 +1,72 @@
+name: CI
+
+# Runs on pull requests, and is the gate docker-publish.yml calls before it
+# publishes anything (`workflow_call`), so the checks guarding a PR and the
+# checks guarding a deploy can never drift apart. No `push` trigger: on a push
+# to `release` this already runs as the publish workflow's first job.
+on:
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Typecheck, lint, test, build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          # Matches the Dockerfile.
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
+
+      - name: Install
+        run: npm ci --prefix server && npm ci --prefix client
+
+      - name: Typecheck
+        run: npm run check --prefix server && npm run check --prefix client
+
+      - name: Lint
+        run: npm run lint --prefix client
+
+      # The state rules (down / degraded / operational / unknown): the one part
+      # a status page must never get wrong.
+      - name: Unit tests
+        run: npm test --prefix server
+
+      - name: Build
+        run: npm run build --prefix client && npm run build --prefix server
+
+      # The CSP allows no inline script and no other origin, so the built page
+      # must contain neither, or it breaks in production and nowhere else.
+      - name: Check the built page against the CSP
+        # `if` rather than `! grep`: bash's -e ignores a negated command that
+        # isn't the last one, so that form would let the first check pass silently.
+        run: |
+          if grep -P '<script(?![^>]*\bsrc=)' client/dist/index.html; then echo "::error::inline script in index.html"; exit 1; fi
+          if grep -E '(src|href)="https?://' client/dist/index.html; then echo "::error::third-party resource in index.html"; exit 1; fi
+
+      # The built app served by the real production server.
+      - name: Smoke test the production server
+        run: |
+          mkdir -p "$RUNNER_TEMP/pulse-data" && echo '[]' > "$RUNNER_TEMP/pulse-data/services.json"
+          PULSE_DATA_DIR="$RUNNER_TEMP/pulse-data" PORT=4499 node server/dist/index.js &
+          for _ in $(seq 1 20); do curl -sf http://127.0.0.1:4499/healthz && break; sleep 0.5; done
+          curl -sf http://127.0.0.1:4499/ | grep -q '<title>Pulse</title>'
+          curl -sf http://127.0.0.1:4499/api/status | grep -q '"overall"'
+          curl -sf http://127.0.0.1:4499/sw.js | grep -q 'pulse-shell'
+          curl -sI http://127.0.0.1:4499/ | grep -qi "^content-security-policy: default-src 'self'"
+          # A missing file is a 404, never the page: the service worker would
+          # otherwise cache the HTML under a script's URL.
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4499/assets/missing.js)" = 404

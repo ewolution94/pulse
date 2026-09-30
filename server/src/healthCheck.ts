@@ -10,6 +10,17 @@ function resolveTarget(service: ServiceConfig): string {
   }
 }
 
+// The error ends up on the public page, so it's reduced to a code. Node's own
+// messages can carry the target ("Failed to parse URL from http://10.0.0.5…",
+// "getaddrinfo ENOTFOUND nas.lan"), and that address is exactly what the page
+// is careful not to publish.
+function describeFailure(err: unknown): string {
+  if (err instanceof Error && err.name === "AbortError") return "Timed out";
+  const cause = err instanceof Error ? (err.cause as { code?: unknown } | undefined) : undefined;
+  if (typeof cause?.code === "string" && /^[A-Z0-9_]+$/.test(cause.code)) return cause.code;
+  return "Request failed";
+}
+
 export async function checkService(service: ServiceConfig): Promise<RecentCheck> {
   const target = resolveTarget(service);
   const controller = new AbortController();
@@ -30,13 +41,12 @@ export async function checkService(service: ServiceConfig): Promise<RecentCheck>
 
     return { timestamp: Date.now(), ok, httpStatus: res.status, responseTimeMs, error: null };
   } catch (err) {
-    const timedOut = err instanceof Error && err.name === "AbortError";
     return {
       timestamp: Date.now(),
       ok: false,
       httpStatus: null,
       responseTimeMs: null,
-      error: timedOut ? "Timed out" : err instanceof Error ? err.message : "Request failed",
+      error: describeFailure(err),
     };
   } finally {
     clearTimeout(timeout);

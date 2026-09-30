@@ -10,7 +10,16 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  # ⚠️ The gate. A push to `release` is the whole deploy: Watchtower on the NAS
+  # recreates the container from `:latest` within ~5 minutes, unattended. So a
+  # red check here must publish nothing. Reuses ci.yml rather than restating it.
+  verify:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   build-and-push:
+    needs: verify
     runs-on: ubuntu-latest
 
     permissions:

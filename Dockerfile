@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
 COPY server/package.json server/package-lock.json* ./server/
@@ -10,7 +10,7 @@ COPY client ./client
 RUN npm run build --prefix client && npm run build --prefix server
 
 
-FROM node:20-alpine AS runtime
+FROM node:24-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4400
