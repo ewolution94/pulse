@@ -1,3 +1,5 @@
+# Local build from source. The NAS runs deploy/portainer-stack.yml, which pulls
+# the image CI publishes instead of building it.
 services:
   pulse:
     build: .
