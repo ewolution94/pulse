@@ -6,8 +6,8 @@
 
 **Status, at a glance.**
 
-A self-hosted status page for the apps you run — dark mode, GitHub-Status-style
-uptime bars, no auto-discovery. You add the services yourself; Pulse checks
+A self-hosted status page for the apps you run — GitHub-Status-style uptime
+bars, light and dark, English and German, no auto-discovery. You add the services yourself; Pulse checks
 them on a schedule and shows what's up, what's slow, and what's down.
 
 ## Features
@@ -20,8 +20,15 @@ them on a schedule and shows what's up, what's slow, and what's down.
 - **Three states, not just up/down** — *operational*, *degraded* (recent
   failures or slow responses), *down*, derived automatically from check
   history — no manual thresholds to babysit.
-- **90-day uptime bars** — GitHub-Status-style daily ticks per service, hover
-  for the exact date and uptime percentage.
+- **90-day uptime bars** — GitHub-Status-style daily ticks per service. Point
+  at a day, tap or drag across the bar on a phone, or use the arrow keys, and
+  the line under it shows that day's date, uptime and average response time.
+- **The state, before the details** — a headline in the state's colour with
+  how many services are up, the median response time and the last check; the
+  page's glow takes the same colour, and the tab title names what's down.
+- **Light and dark, English and German** — following the device, with a
+  switch for each in the footer (kept in the browser, applied before first
+  paint by `public/theme.js`).
 - **Live-streamed** — updates over Server-Sent Events; the page never needs a
   manual refresh, and it reconnects by itself after a restart or a deploy.
 - **Installable, and opens offline** — add it to a home screen. Without a
@@ -181,11 +188,11 @@ pulse/
 │   ├── index.ts           poll loop, API + SSE, headers, static serving
 │   ├── state.ts           down / degraded / operational / unknown (+ state.test.ts)
 │   └── types.ts
-├── client/public/         sw.js, manifest, icons, fonts, og.png
+├── client/public/         sw.js, theme.js, manifest, icons, fonts, og.png
 ├── client/src/
-│   ├── components/        OverallBanner, ServiceRow, UptimeBar, PulseMark…
+│   ├── components/        StatusHero, ServiceRow, UptimeBar, Backdrop, PulseMark…
 │   ├── hooks/              useStatus (SSE + last known status), useClock
-│   └── lib/                types, format, dayWindow, state colors
+│   └── lib/                i18n (EN/DE), prefs (theme, language), format, dayWindow, state colors
 ├── deploy/
 │   └── portainer-stack.yml the stack the NAS runs
 ├── Dockerfile              multi-stage build → single runtime image

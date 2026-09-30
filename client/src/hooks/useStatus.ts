@@ -4,8 +4,12 @@ import type { ConnectionState, StatusResponse } from "../lib/types";
 const STORAGE_KEY = "pulse-last-status-v1";
 /** How long a fresh open waits for the stream before it shows the saved status. */
 const GRACE_MS = 2500;
-/** A stream the server closed (a deploy, a proxy error page) isn't retried by the browser. */
-const RETRY_MS = 5000;
+/**
+ * A stream the server closed (a deploy, a proxy error page) isn't retried by
+ * the browser. The first retry is quick, since a deploy takes seconds; after
+ * that it backs off, so a tab left open through a long outage stays quiet.
+ */
+const RETRY_MS = [5000, 10000, 20000, 30000];
 
 export interface StatusView {
   status: StatusResponse | null;
@@ -44,6 +48,7 @@ export function useStatus(): StatusView {
   useEffect(() => {
     let source: EventSource | null = null;
     let retry: ReturnType<typeof setTimeout> | undefined;
+    let failures = 0;
     const grace = setTimeout(() => setGraceOver(true), GRACE_MS);
 
     const connect = () => {
@@ -52,7 +57,10 @@ export function useStatus(): StatusView {
       const es = new EventSource("/api/stream");
       source = es;
 
-      es.addEventListener("open", () => setConnection("live"));
+      es.addEventListener("open", () => {
+        failures = 0;
+        setConnection("live");
+      });
 
       es.addEventListener("status", (event) => {
         const raw = (event as MessageEvent<string>).data;
@@ -72,7 +80,8 @@ export function useStatus(): StatusView {
           return;
         }
         setConnection("offline");
-        retry = setTimeout(connect, RETRY_MS);
+        retry = setTimeout(connect, RETRY_MS[Math.min(failures, RETRY_MS.length - 1)]);
+        failures += 1;
       });
     };
 

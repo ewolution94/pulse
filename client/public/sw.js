@@ -26,7 +26,7 @@
  */
 
 /** Bump to evict everything a previous version cached. */
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL = `pulse-shell-${VERSION}`;
 const ASSETS = `pulse-assets-${VERSION}`;
 const MINE = [SHELL, ASSETS];
@@ -36,6 +36,8 @@ const SHELL_URL = "/";
 
 const ASSET_PATHS = ["/assets/", "/fonts/", "/icons/"];
 const ASSET_FILES = ["/favicon.svg", "/manifest.webmanifest"];
+/** Not fingerprinted but part of the shell (theme and language before paint): network first, like the page. */
+const SHELL_FILES = ["/theme.js"];
 
 /**
  * The shell, plus the files it names. This worker is a plain file the bundler
@@ -51,6 +53,8 @@ async function precacheShell() {
 
   const html = await response.text();
   const referenced = [...html.matchAll(/["'(](\/(?:assets|fonts|icons)\/[A-Za-z0-9._-]+)["')]/g)].map((m) => m[1]);
+  await Promise.all(SHELL_FILES.map((href) => cache.add(new Request(href, { cache: "reload" })).catch(() => undefined)));
+
   const assets = await caches.open(ASSETS);
   await Promise.all(
     [...new Set([...referenced, ...ASSET_FILES])].map((href) =>
@@ -123,6 +127,24 @@ self.addEventListener("fetch", (event) => {
           return response;
         } catch {
           return (await matchIn(SHELL, SHELL_URL)) ?? Response.error();
+        }
+      })(),
+    );
+    return;
+  }
+
+  if (SHELL_FILES.includes(url.pathname)) {
+    event.respondWith(
+      (async () => {
+        try {
+          const response = await fetch(request, { cache: "no-store" });
+          if (storable(response)) {
+            const copy = response.clone();
+            void caches.open(SHELL).then((cache) => cache.put(url.pathname, copy));
+          }
+          return response;
+        } catch {
+          return (await matchIn(SHELL, url.pathname)) ?? Response.error();
         }
       })(),
     );

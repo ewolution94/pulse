@@ -1,7 +1,8 @@
 import type { ServiceState } from "./types";
 
+// Colours only; the labels are in i18n.ts. `color` is a CSS variable, so
+// inline styles follow the theme like the utility classes do.
 export interface StateMeta {
-  label: string;
   color: string;
   textClass: string;
   bgClass: string;
@@ -10,29 +11,25 @@ export interface StateMeta {
 
 export const STATE_META: Record<ServiceState, StateMeta> = {
   operational: {
-    label: "Operational",
-    color: "#35d488",
+    color: "var(--color-good)",
     textClass: "text-good",
     bgClass: "bg-good/10",
     borderClass: "border-good/25",
   },
   degraded: {
-    label: "Degraded",
-    color: "#ffb545",
+    color: "var(--color-warn)",
     textClass: "text-warn",
     bgClass: "bg-warn/10",
     borderClass: "border-warn/25",
   },
   down: {
-    label: "Down",
-    color: "#ff5c72",
+    color: "var(--color-bad)",
     textClass: "text-bad",
     bgClass: "bg-bad/10",
     borderClass: "border-bad/25",
   },
   unknown: {
-    label: "Unknown",
-    color: "#7d8aa3",
+    color: "var(--color-unknown)",
     textClass: "text-mist",
     bgClass: "bg-mist/10",
     borderClass: "border-mist/20",

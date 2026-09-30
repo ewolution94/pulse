@@ -18,28 +18,32 @@
   font-style: normal;
 }
 
+/* Every token is light-dark(light, dark): `color-scheme` on the root picks
+   the theme, following the system unless data-theme pins one (prefs.ts).
+   The ramp runs abyss (furthest back) to paper (furthest forward), so light
+   is the same ramp reversed. The light status colours are deepened to clear
+   4.5:1 as 11px text inside their own tinted pills on a white card. */
 @theme {
-  --color-abyss: #05070c;
-  --color-abyss-2: #0a0e1a;
-  --color-ink: #0d1220;
-  --color-ink-2: #101627;
-  --color-line: #1b2333;
-  --color-line-soft: #141a29;
-  --color-mist: #7d8aa3;
-  --color-fog: #b3bcd1;
-  --color-paper: #eef1f8;
-  --color-brand: #5ad1ff;
-  --color-good: #35d488;
-  --color-warn: #ffb545;
-  --color-bad: #ff5c72;
-  --color-unknown: #7d8aa3;
+  --color-abyss: light-dark(#f4f6fa, #05070c);
+  --color-abyss-2: light-dark(#eceff5, #0a0e1a);
+  --color-ink: light-dark(#ffffff, #0d1220);
+  --color-ink-2: light-dark(#f6f8fb, #101627);
+  --color-line: light-dark(#d5dce8, #1b2333);
+  --color-line-soft: light-dark(#e4e9f1, #141a29);
+  --color-mist: light-dark(#5b6880, #7d8aa3);
+  --color-fog: light-dark(#364054, #b3bcd1);
+  --color-paper: light-dark(#0b1220, #eef1f8);
+  --color-brand: light-dark(#0873a0, #5ad1ff);
+  --color-good: light-dark(#067a52, #35d488);
+  --color-warn: light-dark(#9a5a00, #ffb545);
+  --color-bad: light-dark(#c42a3f, #ff5c72);
+  --color-unknown: light-dark(#5b6880, #7d8aa3);
 
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
 
   --animate-pulse-dot: pulse-dot 2.2s ease-in-out infinite;
   --animate-rise: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-sweep: sweep 20s linear infinite;
 }
 
 @layer base {
@@ -48,7 +52,24 @@
   }
 
   html {
+    color-scheme: light dark;
+    /* The state glow in Backdrop: on a light page the same tint reads as a
+       stain, so it runs at half strength there. */
+    --bloom: 1;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bloom: 0.5;
+    }
+  }
+  :root[data-theme="light"] {
+    --bloom: 0.5;
+  }
+  :root[data-theme="dark"] {
     color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
   }
 
   body {
@@ -96,6 +117,77 @@
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
   }
+
+  /* The page's ground: a dot grid that fades out below the fold, the same
+     language as the drawings on ewolution.cloud. Fixed, so it never moves
+     with the scroll. */
+  .dot-grid {
+    background-image: radial-gradient(circle at center, var(--color-line) 1px, transparent 1.4px);
+    background-size: 22px 22px;
+    mask-image: radial-gradient(ellipse 120% 70% at 50% 0%, #000 0%, transparent 75%);
+  }
+
+  /* The hero's heartbeat: fades in from the left so it never sits under the
+     headline's first words; while live, a beat runs along it and the peak
+     breathes. Both stop under reduced motion (below). */
+  .hero-trace {
+    mask-image: linear-gradient(90deg, transparent 0%, #000 40%);
+  }
+  .hero-trace__run {
+    stroke-dasharray: 0.07 2;
+    stroke-dashoffset: 0.07;
+    animation: trace-run 3.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+  .hero-trace__beat {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: beat 3.4s ease-in-out infinite;
+  }
+
+  .skeleton {
+    background: var(--color-line-soft);
+    animation: skeleton 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes trace-run {
+  from {
+    stroke-dashoffset: 0.07;
+  }
+  70%,
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+/* The peak lights as the running beat passes it (the spike is ~65% along). */
+@keyframes beat {
+  0%,
+  35%,
+  60%,
+  100% {
+    transform: scale(1);
+  }
+  47% {
+    transform: scale(1.7);
+  }
+}
+
+@keyframes skeleton {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Nothing loops or slides for a reader who asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 @keyframes pulse-dot {
@@ -119,11 +211,3 @@
   }
 }
 
-@keyframes sweep {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -400;
-  }
-}
