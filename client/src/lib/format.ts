@@ -17,3 +17,11 @@ export function formatDayLabel(dateStr: string): string {
 export function formatClock(date: Date): string {
   return date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
 }
+
+/** "14:02" today, "29 Sep, 14:02" on any other day. */
+export function formatAsOf(timestamp: number, now: number = Date.now()): string {
+  const date = new Date(timestamp);
+  const time = date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
+  if (date.toDateString() === new Date(now).toDateString()) return time;
+  return `${date.toLocaleDateString(undefined, { day: "numeric", month: "short" })}, ${time}`;
+}

@@ -13,7 +13,9 @@ export function UptimeBar({ days, windowSize = 90 }: UptimeBarProps) {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex items-end gap-[2px]">
+      {/* 90 ticks need 358px at a 2px minimum and a 2px gap, more than a phone
+          card has. Ticks shrink freely instead, with a 1px gap below `sm`. */}
+      <div className="flex items-end gap-px sm:gap-[2px]">
         {window.map((day, i) => {
           const state = dayState(day);
           const meta = stateMeta(state);
@@ -25,7 +27,7 @@ export function UptimeBar({ days, windowSize = 90 }: UptimeBarProps) {
             <div
               key={i}
               title={title}
-              className="h-8 min-w-[2px] max-w-[7px] flex-1 rounded-[1.5px] transition-transform hover:scale-y-110"
+              className="h-8 min-w-0 max-w-[7px] flex-1 rounded-[1.5px] transition-transform hover:scale-y-110"
               style={{ backgroundColor: meta.color, opacity: day ? (state === "unknown" ? 0.25 : 0.9) : 0.15 }}
             />
           );

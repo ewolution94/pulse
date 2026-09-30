@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Home-screen icon: brand/mark.svg, full bleed. The platform rounds the corners itself, so there is no rounded rect or border here. PNGs in client/public/icons are rendered from this (landing/tools/app-icons). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0a0e1a"/>
+      <stop offset="1" stop-color="#05070c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="30" cy="12" r="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5ad1ff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#5ad1ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="64" height="64" fill="url(#bg)"/>
+
+  <circle cx="30" cy="12" r="14" fill="url(#glow)"/>
+
+  <path d="M 6 32 L 18 32 L 22 26 L 26 38 L 30 12 L 34 50 L 38 32 L 58 32"
+        fill="none" stroke="#5ad1ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="30" cy="12" r="2.6" fill="#5ad1ff"/>
+</svg>

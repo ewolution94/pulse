@@ -3,15 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Home-screen install; public/sw.js is the offline shell behind it. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Pulse" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#05070c" />
-    <meta name="description" content="Pulse — a live status page for self-hosted apps." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Pulse — live status and 90-day uptime for self-hosted apps." />
+    <!-- Social preview (Slack, WhatsApp, LinkedIn, iMessage …). og.png is
+         1200×630, rendered by landing/tools/og-apps; bump ?v= when it changes
+         so link caches refetch it. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pulse" />
+    <meta property="og:title" content="Pulse" />
+    <meta property="og:description" content="Live status and 90-day uptime for self-hosted apps." />
+    <meta property="og:url" content="https://pulse.ewolution.cloud/" />
+    <meta property="og:image" content="https://pulse.ewolution.cloud/og.png?v=1" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Pulse: live status and 90-day uptime for self-hosted apps." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin />
     <title>Pulse</title>
   </head>
   <body>

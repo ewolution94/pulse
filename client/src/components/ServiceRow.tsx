@@ -8,9 +8,11 @@ import type { ServiceStatus } from "../lib/types";
 interface ServiceRowProps {
   service: ServiceStatus;
   now: number;
+  /** False while the page shows a last-known status: nothing pulses then. */
+  live: boolean;
 }
 
-export function ServiceRow({ service, now }: ServiceRowProps) {
+export function ServiceRow({ service, now, live }: ServiceRowProps) {
   const meta = stateMeta(service.state);
   const responseMs = service.current?.responseTimeMs ?? null;
 
@@ -22,7 +24,7 @@ export function ServiceRow({ service, now }: ServiceRowProps) {
             <span
               className={clsx(
                 "absolute inline-flex h-full w-full rounded-full",
-                service.state !== "unknown" && "animate-pulse-dot"
+                live && service.state !== "unknown" && "animate-pulse-dot"
               )}
               style={{ backgroundColor: meta.color }}
             />
@@ -44,8 +46,8 @@ export function ServiceRow({ service, now }: ServiceRowProps) {
         </div>
 
         <div className="flex items-center gap-4 font-mono text-[11px] text-mist">
-          {responseMs !== null && <span>{responseMs}ms</span>}
-          {service.uptimePct90d !== null && <span>{service.uptimePct90d}% uptime</span>}
+          {responseMs !== null && <span className="whitespace-nowrap">{responseMs}ms</span>}
+          {service.uptimePct90d !== null && <span className="whitespace-nowrap">{service.uptimePct90d}% uptime</span>}
           <span className={clsx("rounded-full border px-2 py-0.5", meta.borderClass, meta.bgClass, meta.textClass)}>
             {meta.label}
           </span>
