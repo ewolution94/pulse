@@ -1,0 +1,42 @@
+# The Pulse stack Portainer runs on the NAS.
+#
+# This is deliberately NOT the repo's docker-compose.yml. That one carries
+# `build: .`, which would make Portainer compile Pulse on the NAS instead of
+# pulling the image CI already published. Paste this into Portainer's stack
+# editor (or point a Git-backed stack at this file), never that one.
+#
+# Auto-updates come from the shared Watchtower stack
+# (clinch/deploy/watchtower-stack.yml), which only touches containers carrying
+# the label below. With it, a push to `release` is the entire deploy.
+
+services:
+  pulse:
+    # `:latest`, never a commit tag like `:a5c2589`: Watchtower only follows the
+    # tag a container already runs, so a pinned tag never updates.
+    image: ghcr.io/ewolution94/pulse:latest
+    container_name: pulse
+    restart: unless-stopped
+    ports:
+      - "4400:4400"
+    environment:
+      - PULSE_POLL_INTERVAL_MS=60000
+      - TZ=Europe/Berlin
+      # Defaults, listed so they're one uncomment away:
+      # - PULSE_CHECK_TIMEOUT_MS=10000
+      # - PULSE_RETENTION_DAYS=90
+      # - PULSE_DEGRADED_LATENCY_MS=3000
+    volumes:
+      # services.json (edited by hand, re-read every poll) and history.json
+      # (the 90 days of uptime). Portainer names the volume after the stack
+      # (`<stack>_pulse_data`), so update the existing `pulse` stack in place
+      # and keep this key, or the history starts over in a fresh volume.
+      - pulse_data:/app/data
+    # The image's own HEALTHCHECK (wget /healthz every 30 s) applies; nothing
+    # to repeat here.
+    labels:
+      # The opt-in the shared Watchtower looks for (it runs with
+      # WATCHTOWER_LABEL_ENABLE=true, so unlabelled containers are never touched).
+      - "com.centurylinklabs.watchtower.enable=true"
+
+volumes:
+  pulse_data:
