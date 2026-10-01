@@ -1,3 +1,6 @@
+/* The shared tokens (--ewo-*, from Folio, vendored by its `npm run vendor`), in
+   their own first layer; this file sets the ones it differs in. */
+@import "../vendor/ewo/tokens/tokens.css";
 @import "tailwindcss";
 
 /* Self-hosted variable fonts (index.html preloads both), so the page makes
@@ -24,26 +27,45 @@
    is the same ramp reversed. The light status colours are deepened to clear
    4.5:1 as 11px text inside their own tinted pills on a white card. */
 @theme {
-  --color-abyss: light-dark(#f4f6fa, #05070c);
-  --color-abyss-2: light-dark(#eceff5, #0a0e1a);
-  --color-ink: light-dark(#ffffff, #0d1220);
+  --color-abyss: var(--ewo-bg);
+  --color-abyss-2: var(--ewo-bg-sunk);
+  --color-ink: var(--ewo-bg-raised);
   --color-ink-2: light-dark(#f6f8fb, #101627);
-  --color-line: light-dark(#d5dce8, #1b2333);
-  --color-line-soft: light-dark(#e4e9f1, #141a29);
-  --color-mist: light-dark(#5b6880, #7d8aa3);
-  --color-fog: light-dark(#364054, #b3bcd1);
-  --color-paper: light-dark(#0b1220, #eef1f8);
+  --color-line: var(--ewo-line);
+  --color-line-soft: var(--ewo-line-2);
+  --color-mist: var(--ewo-fg-3);
+  --color-fog: var(--ewo-fg-2);
+  --color-paper: var(--ewo-fg);
   --color-brand: light-dark(#0873a0, #5ad1ff);
-  --color-good: light-dark(#067a52, #35d488);
-  --color-warn: light-dark(#9a5a00, #ffb545);
-  --color-bad: light-dark(#c42a3f, #ff5c72);
-  --color-unknown: light-dark(#5b6880, #7d8aa3);
+  --color-good: var(--ewo-ok);
+  --color-warn: var(--ewo-warn);
+  --color-bad: var(--ewo-bad);
+  --color-unknown: var(--ewo-unknown);
 
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-display: var(--ewo-sans);
+  --font-mono: var(--ewo-mono);
 
   --animate-pulse-dot: pulse-dot 2.2s ease-in-out infinite;
   --animate-rise: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@layer base {
+  /* This app's values for the shared tokens; @theme's names point at them. */
+  :root {
+    --ewo-bg: light-dark(#f4f6fa, #05070c);
+    --ewo-bg-sunk: light-dark(#eceff5, #0a0e1a);
+    --ewo-bg-raised: light-dark(#ffffff, #0d1220);
+    --ewo-line: light-dark(#d5dce8, #1b2333);
+    --ewo-line-2: light-dark(#e4e9f1, #141a29);
+    --ewo-fg: light-dark(#0b1220, #eef1f8);
+    --ewo-fg-2: light-dark(#364054, #b3bcd1);
+    --ewo-fg-3: light-dark(#5b6880, #7d8aa3);
+    --ewo-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --ewo-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+    --ewo-unknown: light-dark(#5b6880, #7d8aa3);
+    /* The brand blue is the accent. */
+    --ewo-accent: var(--color-brand);
+  }
 }
 
 @layer base {
