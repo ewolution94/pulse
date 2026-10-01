@@ -63,6 +63,8 @@ var r = t`
   :host([tone='invert']) button[aria-checked='true'] { color: var(--ewo-invert-ink); }
   :host([tone='accent']) button[aria-checked='true'] { color: var(--ewo-accent-ink); }
   button:focus-visible { outline-offset: -2px; }
+  /* An option's icon lays out as if it were the button's own child. */
+  ::slotted([slot^='icon-']) { display: contents; }
 `, i = class extends e {
 	static styles = [r];
 	static formAssociated = !0;
@@ -144,8 +146,12 @@ var r = t`
 			}
 		}
 		this.#n.querySelectorAll("button").forEach((t, r) => {
-			let i = r === n;
-			t.textContent = e[r].label, t.setAttribute("aria-checked", String(i)), t.tabIndex = i && !this.disabled ? 0 : -1, t.part.toggle("selected", i);
+			let i = r === n, a = `icon-${e[r].value}`;
+			if (Array.from(this.children).some((e) => e.slot === a)) {
+				let n = document.createElement("slot");
+				n.name = a, t.replaceChildren(n, e[r].label);
+			} else t.textContent = e[r].label;
+			t.setAttribute("aria-checked", String(i)), t.tabIndex = i && !this.disabled ? 0 : -1, t.part.toggle("selected", i);
 		}), this.#n.style.setProperty("--n", String(Math.max(1, e.length))), this.#n.style.setProperty("--i", String(n)), this.#e.ariaLabel = this.label || null, this.#e.ariaDisabled = this.disabled ? "true" : null, this.#e.setFormValue(t);
 	}
 };

@@ -534,6 +534,10 @@
             {
               "description": "`<option value>` elements, one per choice.",
               "name": ""
+            },
+            {
+              "description": "An icon for that option (any element, e.g. an inline SVG), shown before its label.",
+              "name": "icon-<value>"
             }
           ],
           "members": [

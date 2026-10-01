@@ -128,6 +128,15 @@
 }
 
 @layer components {
+  /* The uptime ticks (<ewo-ticks>, vendor/ewo): Pulse's focus ring, and
+     proportional digits in the readout, as before. */
+  ewo-ticks {
+    --ewo-focus: 2px solid var(--color-brand);
+  }
+  ewo-ticks::part(caption) {
+    font-variant-numeric: normal;
+  }
+
   .glass-panel {
     background: color-mix(in srgb, var(--color-ink) 78%, transparent);
     backdrop-filter: blur(20px);
