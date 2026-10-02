@@ -26,7 +26,7 @@
  */
 
 /** Bump to evict everything a previous version cached. */
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL = `pulse-shell-${VERSION}`;
 const ASSETS = `pulse-assets-${VERSION}`;
 const MINE = [SHELL, ASSETS];
