@@ -4,33 +4,40 @@ interface PulseMarkProps {
   className?: string;
 }
 
+/**
+ * The app icon as a tile (development/plans/app-icons, the Field set, 1024 grid): a heartbeat on
+ * the night field, the dot on the beat happening now. The mark is drawn a little larger than on the
+ * home screen, as in the favicon, so it holds at header size. It stays a dark tile in the light
+ * theme too.
+ */
 export function PulseMark({ size = 40, animated = true, className }: PulseMarkProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" className={className} aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 1024 1024" className={className} aria-hidden="true">
       <defs>
-        <linearGradient id="pulse-mark-bg" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#0a0e1a" />
-          <stop offset="1" stopColor="#05070c" />
+        <linearGradient id="pulse-mark-bg" x1="0.25" y1="0" x2="0.75" y2="1">
+          <stop offset="0" stopColor="#14254a" />
+          <stop offset="1" stopColor="#060c1c" />
         </linearGradient>
-        <radialGradient id="pulse-mark-glow" cx="30" cy="12" r="14" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#5ad1ff" stopOpacity="0.45" />
-          <stop offset="1" stopColor="#5ad1ff" stopOpacity="0" />
+        <radialGradient id="pulse-mark-sheen" cx="0.5" cy="-0.1" r="0.9">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.22" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      <rect x="2.5" y="2.5" width="59" height="59" rx="15" fill="url(#pulse-mark-bg)" stroke="#1b2333" />
-      <circle cx="30" cy="12" r="14" fill="url(#pulse-mark-glow)" />
+      <rect width="1024" height="1024" rx="232" fill="url(#pulse-mark-bg)" />
+      <rect width="1024" height="1024" rx="232" fill="url(#pulse-mark-sheen)" />
 
-      <path
-        d="M 6 32 L 18 32 L 22 26 L 26 38 L 30 12 L 34 50 L 38 32 L 58 32"
-        fill="none"
-        stroke="#5ad1ff"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      <circle cx="30" cy="12" r="2.6" fill="#5ad1ff" className={animated ? "animate-pulse-dot" : undefined} />
+      <g transform="translate(512 512) scale(1.14) translate(-512 -512)">
+        <path
+          d="M188 566 H346 L412 444 L494 706 L584 302 L656 566 H836"
+          fill="none"
+          stroke="#5ad1ff"
+          strokeWidth="80"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="584" cy="302" r="60" fill="#5ee39a" className={animated ? "animate-pulse-dot" : undefined} />
+      </g>
     </svg>
   );
 }
