@@ -70,3 +70,6 @@ jobs:
           # A missing file is a 404, never the page: the service worker would
           # otherwise cache the HTML under a script's URL.
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4499/assets/missing.js)" = 404
+          # Census's forwarder without a target: an empty beacon, and views accepted but sent nowhere.
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4499/_e.js)" = 200
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST --data '{}' http://127.0.0.1:4499/_e)" = 204

@@ -21,6 +21,9 @@ services:
     environment:
       - PULSE_POLL_INTERVAL_MS=60000
       - TZ=Europe/Berlin
+      # Visit counts: /_e and /_e.js are forwarded to Census over the `ewolution`
+      # network. Remove the line to stop counting; the page doesn't change either way.
+      - PULSE_CENSUS=http://census:4901
       # Defaults, listed so they're one uncomment away:
       # - PULSE_CHECK_TIMEOUT_MS=10000
       # - PULSE_RETENTION_DAYS=90
@@ -33,10 +36,19 @@ services:
       - pulse_data:/app/data
     # The image's own HEALTHCHECK (wget /healthz every 30 s) applies; nothing
     # to repeat here.
+    networks:
+      # The shared network Census listens on (and where Census reads
+      # pulse:4400/api/status for its outage bands). It must exist before this
+      # stack is updated (Portainer → Networks → `ewolution`).
+      - ewolution
     labels:
       # The opt-in the shared Watchtower looks for (it runs with
       # WATCHTOWER_LABEL_ENABLE=true, so unlabelled containers are never touched).
       - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  ewolution:
+    external: true
 
 volumes:
   pulse_data:

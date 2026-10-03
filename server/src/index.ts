@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { Response } from "express";
 import { loadServices, POLL_INTERVAL_MS } from "./config.js";
+import { createCensus } from "./census.js";
 import { checkService } from "./healthCheck.js";
 import { pruneRemovedServices, recordCheck, toAvgResponseMs } from "./historyStore.js";
 import { deriveOverall, deriveState } from "./state.js";
@@ -43,6 +44,15 @@ app.disable("x-powered-by");
 app.use((_req, res, next) => {
   res.set(SECURITY_HEADERS);
   next();
+});
+
+// Visit counts: /_e.js and /_e go to Census (census.ts) before the static files
+// and the catch-all, which would answer them with a 404 or the page.
+const census = createCensus({ target: process.env.PULSE_CENSUS, site: "pulse" });
+app.use((req, res, next) => {
+  census(req, res).then((handled) => {
+    if (!handled) next();
+  }, next);
 });
 
 let cachedStatus: StatusResponse = {

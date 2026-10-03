@@ -129,6 +129,14 @@ The server sends a strict Content-Security-Policy (same origin only, no inline
 scripts or styles), so the page makes no third-party request: the fonts are
 self-hosted under `client/public/fonts`.
 
+**Visit counts** go to [Census](https://github.com/ewolution94/census), the
+self-hosted counter on the NAS: no cookies, nothing stored on the device.
+`server/src/census.ts` forwards `/_e.js` and `/_e` to it over the shared Docker
+network `ewolution` (where Census listens as `census:4901`), adding only
+`X-Site: pulse`, so the CSP stays `'self'`. Without `PULSE_CENSUS` (local runs)
+the forwarder answers with an empty beacon and counts nothing. On the same
+network Census also reads `/api/status` to draw outage bands.
+
 ### Install and offline
 
 `client/public/sw.js` is a small service worker. Page loads go to the network
@@ -153,6 +161,7 @@ preview changes, so link caches fetch it again.
 | `PULSE_CHECK_TIMEOUT_MS`       | `10000` | Per-check timeout before it counts as down.    |
 | `PULSE_RETENTION_DAYS`         | `90`    | How many days of history to keep per service.  |
 | `PULSE_DEGRADED_LATENCY_MS`    | `3000`  | Response time above which an "up" check still counts toward *degraded*. |
+| `PULSE_CENSUS`                 | *(off)* | Census's ingest origin for visit counts, `http://census:4901` on the NAS. |
 
 ## How state is derived
 
@@ -182,6 +191,7 @@ pulse/
 │   ├── services.example.json
 │   └── history.json       check history (gitignored, auto-managed)
 ├── server/src/
+│   ├── census.ts          forwards /_e.js and /_e to Census (+ census.test.ts)
 │   ├── config.ts          env vars, services.json loading/validation
 │   ├── healthCheck.ts     a single HTTP check with timeout
 │   ├── historyStore.ts    daily-aggregate history persistence
