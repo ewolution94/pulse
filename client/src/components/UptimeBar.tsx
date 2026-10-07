@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import "../../vendor/ewo/elements/ticks.js";
 import type { Tick, TickState } from "../../vendor/ewo/elements/ticks.js";
+// <ewo-ticks>'s JSX typing, here as well as in src/ewo.d.ts: Folio's Storybook
+// compiles this file with its own tsconfig, which never sees ewo.d.ts.
+import type {} from "../../vendor/ewo/elements/react";
 import { buildDayWindow, dayState } from "../lib/dayWindow";
 import { formatDayLabel, uptimePct } from "../lib/format";
 import { useT } from "../lib/i18n";
