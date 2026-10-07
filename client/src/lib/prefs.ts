@@ -40,6 +40,12 @@ export function readLang(): Lang {
   return /^de\b/i.test(first) ? "de" : "en";
 }
 
+/** What a pick looks like on screen right now: "system" is the OS's side. */
+export function resolveTheme(pref: ThemePref): "dark" | "light" {
+  if (pref !== "system") return pref;
+  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
 /** "system" leaves the choice to `color-scheme: light dark` in index.css. */
 export function applyTheme(pref: ThemePref) {
   const root = document.documentElement;

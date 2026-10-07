@@ -8,4 +8,5 @@ export { EwoToaster, toast, type ToastOptions, type ToastTone } from './toaster'
 export { EwoSheet } from './sheet';
 export { EwoThemeToggle, setTheme, storedTheme, restoreTheme, type ThemeChoice } from './theme-toggle';
 export { EwoHalftone } from './halftone';
+export { themeShift } from './theme-shift';
 export { effectiveTheme, onThemeChange } from './base';

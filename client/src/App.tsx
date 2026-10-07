@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { clsx } from "clsx";
 import { PulseMark } from "./components/PulseMark";
 import { StatusHero } from "./components/StatusHero";
@@ -12,7 +12,8 @@ import { useStatus } from "./hooks/useStatus";
 import { useClock } from "./hooks/useClock";
 import { formatClock } from "./lib/format";
 import { I18nContext, STRINGS } from "./lib/i18n";
-import { applyLang, applyTheme, readLang, readTheme, type Lang, type ThemePref } from "./lib/prefs";
+import { applyLang, applyTheme, readLang, readTheme, resolveTheme, type Lang, type ThemePref } from "./lib/prefs";
+import { themeShift } from "../vendor/ewo/elements/theme-shift.js";
 import type { ServiceStatus } from "./lib/types";
 
 function groupServices(services: ServiceStatus[]): [string | null, ServiceStatus[]][] {
@@ -52,7 +53,15 @@ export default function App() {
   const [lang, setLang] = useState<Lang>(readLang);
   const t = STRINGS[lang];
 
-  useEffect(() => applyTheme(theme), [theme]);
+  const shownTheme = useRef<ThemePref | null>(null);
+  useEffect(() => {
+    const was = shownTheme.current;
+    shownTheme.current = theme;
+    // A pick that changes the colours blurs the page for a moment (Folio's themeShift); the
+    // first run and a pick that changes nothing on screen apply at once.
+    if (was !== null && resolveTheme(was) !== resolveTheme(theme)) themeShift(() => applyTheme(theme));
+    else applyTheme(theme);
+  }, [theme]);
   useEffect(() => applyLang(lang, false), [lang]);
 
   // A stream can stay open while the server behind it stops polling. Three
