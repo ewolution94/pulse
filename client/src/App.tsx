@@ -69,6 +69,17 @@ export default function App() {
   const lang = resolveLang(langPref);
   const t = STRINGS[lang];
 
+  // The splash screen (public/theme.js) lifts once the first status is on screen, or once the
+  // stream has failed, so a first open without a signal isn't held up by it.
+  const splashLifted = useRef(false);
+  useEffect(() => {
+    if (splashLifted.current) return;
+    if (status || connection === "reconnecting" || connection === "offline") {
+      splashLifted.current = true;
+      requestAnimationFrame(() => window.dispatchEvent(new Event("splash:ready")));
+    }
+  }, [status, connection]);
+
   const shownTheme = useRef<ThemePref | null>(null);
   useEffect(() => {
     const was = shownTheme.current;
