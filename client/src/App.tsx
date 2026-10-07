@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { clsx } from "clsx";
 import { PulseMark } from "./components/PulseMark";
 import { StatusHero } from "./components/StatusHero";
@@ -7,13 +8,26 @@ import { EmptyState } from "./components/EmptyState";
 import { ConnectionBadge } from "./components/ConnectionBadge";
 import { Backdrop } from "./components/Backdrop";
 import { SkeletonRows } from "./components/SkeletonRows";
-import { Segmented } from "./components/Segmented";
+import { SettingsSheet } from "./components/SettingsSheet";
 import { useStatus } from "./hooks/useStatus";
 import { useClock } from "./hooks/useClock";
 import { formatClock } from "./lib/format";
 import { I18nContext, STRINGS } from "./lib/i18n";
-import { applyLang, applyTheme, readLang, readTheme, resolveTheme, type Lang, type ThemePref } from "./lib/prefs";
+import {
+  applyLang,
+  applyTheme,
+  readLang,
+  readTheme,
+  resolveLang,
+  resolveTheme,
+  storeLang,
+  type LangPref,
+  type ThemePref,
+} from "./lib/prefs";
 import { themeShift } from "../vendor/ewo/elements/theme-shift.js";
+import "../vendor/ewo/elements/settings-button.js";
+// <ewo-settings-button>'s JSX typing, here as well as in src/ewo.d.ts.
+import type {} from "../vendor/ewo/elements/react";
 import type { ServiceStatus } from "./lib/types";
 
 function groupServices(services: ServiceStatus[]): [string | null, ServiceStatus[]][] {
@@ -50,7 +64,9 @@ export default function App() {
   const now = useClock();
   const scrolled = useScrolled();
   const [theme, setTheme] = useState<ThemePref>(readTheme);
-  const [lang, setLang] = useState<Lang>(readLang);
+  const [langPref, setLangPref] = useState<LangPref>(readLang);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const lang = resolveLang(langPref);
   const t = STRINGS[lang];
 
   const shownTheme = useRef<ThemePref | null>(null);
@@ -62,7 +78,24 @@ export default function App() {
     if (was !== null && resolveTheme(was) !== resolveTheme(theme)) themeShift(() => applyTheme(theme));
     else applyTheme(theme);
   }, [theme]);
-  useEffect(() => applyLang(lang, false), [lang]);
+  useEffect(() => applyLang(lang), [lang]);
+
+  // A language pick that changes the words on screen goes under the same short blur as a
+  // theme change. flushSync makes React re-render inside themeShift's apply, and <html lang>
+  // follows there too (Folio's elements take their words from it), so all of it is in place
+  // before the veil clears. System on a browser in that language applies at once.
+  const pickLanguage = (next: LangPref) => {
+    storeLang(next);
+    const shown = resolveLang(next);
+    if (shown === lang) {
+      setLangPref(next);
+      return;
+    }
+    themeShift(() => {
+      flushSync(() => setLangPref(next));
+      applyLang(shown);
+    });
+  };
 
   // A stream can stay open while the server behind it stops polling. Three
   // missed cycles and the page stops presenting what it has as current.
@@ -89,19 +122,23 @@ export default function App() {
           scrolled ? "border-line bg-abyss/75" : "border-transparent bg-transparent"
         )}
       >
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-5 py-4 sm:gap-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <PulseMark size={36} />
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg font-semibold tracking-tight text-paper">PULSE</span>
-              {/* Wraps at the comma and nowhere else, like Clinch's. */}
-              <span className="mt-0.5 font-mono text-[10px] tracking-[0.2em] text-mist">
+              {/* Wraps at the comma and nowhere else, like Clinch's; tighter on a phone,
+                  where the German line, the badge and the settings button share 320px. */}
+              <span className="mt-0.5 font-mono text-[10px] tracking-[0.14em] text-mist sm:tracking-[0.2em]">
                 <span className="whitespace-nowrap">{t.tagline[0]}</span>{" "}
                 <span className="whitespace-nowrap">{t.tagline[1]}</span>
               </span>
             </div>
           </div>
-          <ConnectionBadge state={connection} />
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <ConnectionBadge state={connection} />
+            <ewo-settings-button onClick={() => setSettingsOpen(true)} />
+          </div>
         </div>
       </header>
 
@@ -137,38 +174,23 @@ export default function App() {
           )}
         </div>
 
-        <footer className="mt-14 flex flex-col items-center gap-4 border-t border-line-soft pt-6">
+        <footer className="mt-14 flex flex-col items-center border-t border-line-soft pt-6">
           <p className="mono-tabular text-center text-[11px] text-mist">
             {status
               ? t.footer(Math.round(status.pollIntervalMs / 1000), formatClock(new Date(status.generatedAt), t.locale))
               : t.connecting}
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <Segmented<Lang>
-              label={t.language}
-              value={lang}
-              options={[
-                ["en", "EN"],
-                ["de", "DE"],
-              ]}
-              onChange={(next) => {
-                setLang(next);
-                applyLang(next, true);
-              }}
-            />
-            <Segmented<ThemePref>
-              label={t.theme.label}
-              value={theme}
-              options={[
-                ["system", t.theme.system],
-                ["dark", t.theme.dark],
-                ["light", t.theme.light],
-              ]}
-              onChange={setTheme}
-            />
-          </div>
         </footer>
       </main>
+
+      <SettingsSheet
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        language={langPref}
+        theme={theme}
+        onLanguage={pickLanguage}
+        onTheme={setTheme}
+      />
     </I18nContext.Provider>
   );
 }

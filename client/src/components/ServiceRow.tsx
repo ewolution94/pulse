@@ -53,7 +53,7 @@ export function ServiceRow({ service, now, live }: ServiceRowProps) {
           )}
         </div>
 
-        <div className="mono-tabular flex items-center gap-3.5 text-[11px] text-mist">
+        <div className="mono-tabular flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-[11px] text-mist">
           {responseMs !== null && <span className="whitespace-nowrap">{t.ms(responseMs)}</span>}
           {uptime !== null && <span className="whitespace-nowrap">{t.uptime(t.pct(uptime))}</span>}
           <span className={clsx("rounded-full border px-2 py-0.5", meta.borderClass, meta.bgClass, meta.textClass)}>

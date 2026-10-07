@@ -45,8 +45,7 @@ export interface Strings {
   connecting: string;
   emptyTitle: string;
   emptyBody: [string, string];
-  theme: { label: string; system: string; dark: string; light: string };
-  language: string;
+  settings: { title: string; general: string };
   title: { down: (n: number) => string; degraded: (n: number) => string };
 }
 
@@ -85,8 +84,7 @@ const EN: Strings = {
     "Add entries to",
     "— name, URL, and an optional health-check path. Pulse picks them up on the next check, no restart needed.",
   ],
-  theme: { label: "Theme", system: "Auto", dark: "Dark", light: "Light" },
-  language: "Language",
+  settings: { title: "Settings", general: "General" },
   title: { down: (n) => `${n} down`, degraded: (n) => `${n} degraded` },
 };
 
@@ -121,8 +119,7 @@ const DE: Strings = {
     "Einträge in",
     "ergänzen: Name, URL und optional ein Health-Check-Pfad. Pulse übernimmt sie bei der nächsten Prüfung, ohne Neustart.",
   ],
-  theme: { label: "Design", system: "Auto", dark: "Dunkel", light: "Hell" },
-  language: "Sprache",
+  settings: { title: "Einstellungen", general: "Allgemein" },
   title: { down: (n) => `${n} ausgefallen`, degraded: (n) => `${n} eingeschränkt` },
 };
 

@@ -9,4 +9,6 @@ export { EwoSheet } from './sheet';
 export { EwoThemeToggle, setTheme, storedTheme, restoreTheme, type ThemeChoice } from './theme-toggle';
 export { EwoHalftone } from './halftone';
 export { themeShift } from './theme-shift';
+export { EwoSettingsButton } from './settings-button';
+export { EwoSettingsBasics, type LanguageChoice, type ThemeChoice as SettingsThemeChoice } from './settings-basics';
 export { effectiveTheme, onThemeChange } from './base';

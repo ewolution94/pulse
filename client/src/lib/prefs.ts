@@ -4,6 +4,8 @@
 
 export type ThemePref = "system" | "dark" | "light";
 export type Lang = "en" | "de";
+/** "system" stores nothing and follows the browser's languages. */
+export type LangPref = "system" | Lang;
 
 const THEME_KEY = "pulse:theme";
 const LANG_KEY = "pulse:lang";
@@ -33,9 +35,14 @@ export function readTheme(): ThemePref {
   return stored === "dark" || stored === "light" ? stored : "system";
 }
 
-export function readLang(): Lang {
+export function readLang(): LangPref {
   const stored = read(LANG_KEY);
-  if (stored === "en" || stored === "de") return stored;
+  return stored === "en" || stored === "de" ? stored : "system";
+}
+
+/** The language a pick shows: "system" is the browser's first language, if it's German. */
+export function resolveLang(pref: LangPref): Lang {
+  if (pref !== "system") return pref;
   const first = navigator.languages?.[0] ?? navigator.language ?? "";
   return /^de\b/i.test(first) ? "de" : "en";
 }
@@ -59,7 +66,11 @@ export function applyTheme(pref: ThemePref) {
   }
 }
 
-export function applyLang(lang: Lang, persist: boolean) {
+export function applyLang(lang: Lang) {
   document.documentElement.lang = lang;
-  if (persist) write(LANG_KEY, lang);
+}
+
+/** "system" removes the stored choice, so the next visit follows the browser again. */
+export function storeLang(pref: LangPref) {
+  write(LANG_KEY, pref === "system" ? null : pref);
 }

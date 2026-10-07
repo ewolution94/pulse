@@ -1,6 +1,8 @@
 /* Runs before first paint, so a stored theme or a German reader's language
    never flashes the other one. A blocking classic script, because the CSP
-   forbids inline script. Mirrors applyTheme()/readLang() in src/lib/prefs.ts. */
+   forbids inline script. Mirrors applyTheme()/resolveLang() in
+   src/lib/prefs.ts: a missing pulse:lang is the "System" language, so the
+   browser decides. */
 (function () {
   var root = document.documentElement;
   var theme = null;
