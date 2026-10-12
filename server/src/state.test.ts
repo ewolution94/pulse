@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { deriveOverall, deriveState } from "./state.js";
+import { deriveOverall, deriveState, publishing } from "./state.js";
 import type { RecentCheck } from "./types.js";
 
 const LIMIT = 3000;
@@ -46,4 +46,9 @@ test("overall is the worst state of any service", () => {
   assert.equal(deriveOverall(["operational", "degraded"]), "degraded");
   assert.equal(deriveOverall(["degraded", "down", "unknown"]), "down");
   assert.equal(deriveOverall(["operational", "unknown"]), "unknown");
+});
+
+test("the loop counts as publishing for three intervals, like the page", () => {
+  assert.equal(publishing(0, 60_000, 3 * 60_000), true);
+  assert.equal(publishing(0, 60_000, 3 * 60_000 + 1), false);
 });

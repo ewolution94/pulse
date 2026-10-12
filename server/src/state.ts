@@ -18,6 +18,15 @@ export function deriveState(recent: RecentCheck[], degradedLatencyMs: number): S
   return "operational";
 }
 
+/**
+ * Whether the poll loop still publishes: the status was generated within three intervals. The
+ * client stops presenting a status as current after the same three (App.tsx's `overdue`); keep
+ * the two in step. `/healthz` answers 503 when this is false.
+ */
+export function publishing(generatedAt: number, pollIntervalMs: number, now: number): boolean {
+  return now - generatedAt <= 3 * pollIntervalMs;
+}
+
 /** The page's headline: the worst state of any service. */
 export function deriveOverall(states: ServiceState[]): OverallState {
   if (states.length === 0) return "unknown";

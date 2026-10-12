@@ -109,7 +109,8 @@ export default function App() {
   };
 
   // A stream can stay open while the server behind it stops polling. Three
-  // missed cycles and the page stops presenting what it has as current.
+  // missed cycles and the page stops presenting what it has as current (the
+  // server's /healthz uses the same three: state.ts → publishing).
   const overdue = status !== null && receivedAt !== null && now - receivedAt > 3 * status.pollIntervalMs;
   const stale = disconnected || overdue;
 

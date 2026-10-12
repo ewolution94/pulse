@@ -7,7 +7,7 @@ import { loadServices, POLL_INTERVAL_MS } from "./config.js";
 import { createCensus } from "./census.js";
 import { checkService } from "./healthCheck.js";
 import { pruneRemovedServices, recordCheck, toAvgResponseMs } from "./historyStore.js";
-import { deriveOverall, deriveState } from "./state.js";
+import { deriveOverall, deriveState, publishing } from "./state.js";
 import type { ServiceConfig, ServiceHistory, ServiceStatus, StatusResponse } from "./types.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -119,8 +119,13 @@ async function pollOnce() {
   broadcast();
 }
 
+// A loop that has stopped publishing serves a status that looks current to every reader of
+// /api/status (the page, Atrium, Census), and none of them can tell. 503 is what Docker can tell
+// (nothing restarts it). One target hanging can't cause it: each check has its own deadline
+// (healthCheck.ts), so a hung target is a down tile and the round still publishes.
 app.get("/healthz", (_req, res) => {
-  res.json({ ok: true, uptimeSeconds: process.uptime() });
+  const ok = publishing(cachedStatus.generatedAt, POLL_INTERVAL_MS, Date.now());
+  res.status(ok ? 200 : 503).json({ ok, uptimeSeconds: process.uptime() });
 });
 
 app.get("/api/status", (_req, res) => {
