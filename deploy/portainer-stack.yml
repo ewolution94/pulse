@@ -6,7 +6,7 @@
 # editor (or point a Git-backed stack at this file), never that one.
 #
 # Auto-updates come from the shared Watchtower stack
-# (clinch/deploy/watchtower-stack.yml), which only touches containers carrying
+# (development/.claude/skills/portainer/watchtower/), which only touches containers carrying
 # the label below. With it, a push to `release` is the entire deploy.
 
 services:
