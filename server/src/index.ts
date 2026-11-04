@@ -9,6 +9,8 @@ import { checkService } from "./healthCheck.js";
 import { pruneRemovedServices, recordCheck, toAvgResponseMs } from "./historyStore.js";
 import { deriveOverall, deriveState, publishing } from "./state.js";
 import type { ServiceConfig, ServiceHistory, ServiceStatus, StatusResponse } from "./types.js";
+// Folio's side of Dashboard's config channel, vendored with the client's elements.
+import { createConfig } from "../../client/vendor/ewo/elements/config-server.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 4400;
@@ -152,8 +154,33 @@ app.get("/api/stream", (req, res) => {
 // local dev the Vite dev server handles the frontend instead, so this is a
 // no-op unless client/dist actually exists.
 if (fs.existsSync(CLIENT_DIST)) {
+  // Dashboard's values for Pulse (the language and theme a device that hasn't
+  // picked starts from), checked against the manifest the build copies from
+  // client/public/ewo.config.json. Until Dashboard answers, and whenever it's
+  // down or DASHBOARD_URL is empty, the built-in ones: the page as it ships.
+  // Never part of /healthz: Dashboard being down must not turn Pulse red.
+  const dashboard = createConfig({
+    manifest: JSON.parse(fs.readFileSync(path.join(CLIENT_DIST, "ewo.config.json"), "utf8")),
+    url: process.env.DASHBOARD_URL ?? "",
+  });
+  void dashboard.start();
+
+  // The page carries the values as #ewo-config (a data block, which the CSP
+  // allows: it never runs), so it is kept for the current values and build only.
+  const shellFile = path.join(CLIENT_DIST, "index.html");
+  let shell = { key: "", body: "" };
+  const sendShell = (res: Response) => {
+    const key = `${dashboard.etag()}:${fs.statSync(shellFile).mtimeMs}`;
+    if (shell.key !== key) shell = { key, body: dashboard.inject(fs.readFileSync(shellFile, "utf8")) };
+    res.setHeader("Cache-Control", "no-cache");
+    res.type("html").send(shell.body);
+  };
+
+  // Before the static files, which would otherwise answer / with the plain file.
+  app.get(["/", "/index.html"], (_req, res) => sendShell(res));
   app.use(
     express.static(CLIENT_DIST, {
+      index: false,
       setHeaders(res, filePath) {
         // Vite fingerprints everything under /assets, so a URL there never
         // changes content. Everything else (the page, sw.js, the manifest)
@@ -171,8 +198,7 @@ if (fs.existsSync(CLIENT_DIST)) {
       res.status(404).end();
       return;
     }
-    res.setHeader("Cache-Control", "no-cache");
-    res.sendFile(path.join(CLIENT_DIST, "index.html"));
+    sendShell(res);
   });
 }
 

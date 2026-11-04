@@ -1,10 +1,15 @@
 // Reader preferences, kept in this browser only. public/theme.js applies the
 // same two keys before first paint (the CSP forbids an inline script); keep
-// the two in step.
+// the two in step. "system" is the settings rows' Default: Dashboard's value
+// (#ewo-config, which the server puts first in <head>) when it has one, else
+// the system's theme and the browser's language (lib/defaults.ts).
+
+import { readConfig } from "../../vendor/ewo/elements/config-client.js";
+import { languageFor, themeFor } from "./defaults";
 
 export type ThemePref = "system" | "dark" | "light";
 export type Lang = "en" | "de";
-/** "system" stores nothing and follows the browser's languages. */
+/** "system" stores nothing: Dashboard's language, else the browser's. */
 export type LangPref = "system" | Lang;
 
 const THEME_KEY = "pulse:theme";
@@ -40,29 +45,30 @@ export function readLang(): LangPref {
   return stored === "en" || stored === "de" ? stored : "system";
 }
 
-/** The language a pick shows: "system" is the browser's first language, if it's German. */
+/** The language a pick shows: "system" is Dashboard's, else the browser's first language, if it's German. */
 export function resolveLang(pref: LangPref): Lang {
-  if (pref !== "system") return pref;
   const first = navigator.languages?.[0] ?? navigator.language ?? "";
-  return /^de\b/i.test(first) ? "de" : "en";
+  return languageFor(pref, readConfig().lang, /^de\b/i.test(first) ? "de" : "en");
 }
 
-/** What a pick looks like on screen right now: "system" is the OS's side. */
+/** What a pick looks like on screen right now: "system" is Dashboard's theme, else the OS's side. */
 export function resolveTheme(pref: ThemePref): "dark" | "light" {
-  if (pref !== "system") return pref;
+  const shown = themeFor(pref, readConfig().theme);
+  if (shown !== "system") return shown;
   return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-/** "system" leaves the choice to `color-scheme: light dark` in index.css. */
+/** "system" is Dashboard's theme, else it leaves the choice to `color-scheme: light dark` in index.css. */
 export function applyTheme(pref: ThemePref) {
   const root = document.documentElement;
-  if (pref === "system") delete root.dataset.theme;
-  else root.dataset.theme = pref;
+  const shown = themeFor(pref, readConfig().theme);
+  if (shown === "system") delete root.dataset.theme;
+  else root.dataset.theme = shown;
   write(THEME_KEY, pref === "system" ? null : pref);
 
   for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {
-    if (pref === "system") meta.content = meta.media.includes("light") ? THEME_COLOR.light : THEME_COLOR.dark;
-    else meta.content = THEME_COLOR[pref];
+    if (shown === "system") meta.content = meta.media.includes("light") ? THEME_COLOR.light : THEME_COLOR.dark;
+    else meta.content = THEME_COLOR[shown];
   }
 }
 

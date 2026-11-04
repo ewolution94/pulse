@@ -30,6 +30,7 @@ services:
       # Visit counts: /_e and /_e.js are forwarded to Census over the `ewolution`
       # network. Remove the line to stop counting; the page doesn't change either way.
       - PULSE_CENSUS=http://census:4901
+      - DASHBOARD_URL=http://dashboard:8081
       # Defaults, listed so they're one uncomment away:
       # - PULSE_CHECK_TIMEOUT_MS=10000
       # - PULSE_RETENTION_DAYS=90

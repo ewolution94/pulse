@@ -1,18 +1,27 @@
 /* Runs before first paint, so a stored theme or a German reader's language
    never flashes the other one. A blocking classic script, because the CSP
    forbids inline script. Mirrors applyTheme()/resolveLang() in
-   src/lib/prefs.ts: a missing pulse:lang is the "System" language, so the
-   browser decides. */
+   src/lib/prefs.ts and src/lib/defaults.ts: a missing pulse:theme or
+   pulse:lang is the Default, Dashboard's value (#ewo-config, which the server
+   puts first in <head>) when it has one, else the system and the browser. */
 (function () {
   var root = document.documentElement;
+  var cfg = {};
+  try {
+    cfg = JSON.parse(document.getElementById("ewo-config").textContent) || {};
+  } catch {
+    /* no values in the page (the dev server, Dashboard off): the built-in ones */
+  }
   var theme = null;
   var lang = null;
   try {
     theme = localStorage.getItem("pulse:theme");
     lang = localStorage.getItem("pulse:lang");
   } catch (e) {
-    /* storage blocked: follow the system and the browser */
+    /* storage blocked: Dashboard's, else follow the system and the browser */
   }
+  if (theme !== "light" && theme !== "dark") theme = cfg.theme;
+  if (lang !== "en" && lang !== "de") lang = cfg.lang;
   if (theme === "light" || theme === "dark") {
     root.dataset.theme = theme;
     var metas = document.querySelectorAll('meta[name="theme-color"]');
